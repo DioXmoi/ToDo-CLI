@@ -4,6 +4,7 @@
 #define _19_46_06_10_2024_TASK_H_
 
 #include <chrono>
+#include <iostream>
 #include <string>
 #include <string_view>
 
@@ -25,6 +26,16 @@ public:
 		, m_status{ ToDo }
 		, m_createdAt{ std::chrono::system_clock::now() }
 		, m_updateAt{ m_createdAt }
+	{
+		
+	}
+
+	Task(ID id, std::string_view description, Status status, Date createdAt, Date updateAt)
+		: m_id{ id }
+		, m_description{ description }
+		, m_status{ status }
+		, m_createdAt{ createdAt }
+		, m_updateAt{ updateAt }
 	{
 
 	}
