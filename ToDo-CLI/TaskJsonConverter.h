@@ -38,7 +38,7 @@ public:
 			"\t\"status\" : \"" << nameStatusTask[task.getStatus()] << "\",\n" <<
 			"\t\"createdAt\" : \"" << task.getCreatedAt() << "\",\n" <<
 			"\t\"updateAt\" : \"" << task.getUpdatedAt() << "\"" << "\n" <<
-			"}\n";
+			"}";
 
 		return stream.str();
 	}

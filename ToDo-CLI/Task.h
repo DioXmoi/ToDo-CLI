@@ -4,7 +4,6 @@
 #define _19_46_06_10_2024_TASK_H_
 
 #include <chrono>
-#include <iostream>
 #include <string>
 #include <string_view>
 
