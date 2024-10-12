@@ -19,7 +19,7 @@ public:
 		Done,
 	};
 
-	Task(ID id, std::string_view description)
+	Task(ID id, std::wstring_view description)
 		: m_id{ id }
 		, m_description{ description }
 		, m_status{ ToDo }
@@ -29,7 +29,7 @@ public:
 		
 	}
 
-	Task(ID id, std::string_view description, Status status, Date createdAt, Date updateAt)
+	Task(ID id, std::wstring_view description, Status status, Date createdAt, Date updateAt)
 		: m_id{ id }
 		, m_description{ description }
 		, m_status{ status }
@@ -39,15 +39,43 @@ public:
 
 	}
 
+	Task(const Task& other) = delete;
+
+	Task(Task&& other) noexcept
+		: m_id{ other.m_id }
+		, m_description{ std::move(other.m_description) }
+		, m_status{ other.m_status }
+		, m_createdAt{ std::move(other.m_createdAt) }
+		, m_updateAt{ std::move(other.m_updateAt) }
+	{
+	}
+
+	Task& operator=(const Task& other) = delete;
+
+	Task& operator=(Task&& other) noexcept {
+		if (this == &other) {
+			m_id = other.m_id;
+			m_description = std::move(other.m_description);
+			m_status = other.m_status;
+			m_createdAt = std::move(other.m_createdAt);
+			m_updateAt =std::move(other.m_updateAt);
+
+		}
+
+		return *this;
+	}
+
+	~Task() = default;
+
 	ID getID() const { return m_id; }
 
 	Date getCreatedAt() const { return m_createdAt; }
 
 	Date getUpdatedAt() const { return m_updateAt; }
 
-	const std::string& getDescription() const { return m_description; }
+	const std::wstring& getDescription() const { return m_description; }
 
-	void setDescription(std::string_view description) {
+	void setDescription(std::wstring_view description) {
 		m_updateAt = std::chrono::system_clock::now();
 		m_description = description;
 	}
@@ -60,10 +88,10 @@ public:
 
 private:
 
-	const ID m_id;
-	std::string m_description;
+	ID m_id;
+	std::wstring m_description;
 	Status m_status;
-	const Date m_createdAt;
+	Date m_createdAt;
 	Date m_updateAt;
 
 };
