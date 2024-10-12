@@ -16,12 +16,12 @@
 
 
 
-Date stringToTimePoint(const std::string& strDate) {
+Date stringToTimePoint(const std::wstring& strDate) {
 	using namespace std::chrono;
 
 	std::tm t{ };
-	std::istringstream stream{ strDate };
-	stream >> std::get_time(&t, "%Y-%m-%d %H:%M:%S");
+	std::wistringstream stream{ strDate };
+	stream >> std::get_time(&t, L"%Y-%m-%d %H:%M:%S");
 
 	return sys_days{ year{ t.tm_year + 1900 } / (t.tm_mon + 1) / t.tm_mday } +
 		hours{ t.tm_hour } + minutes{ t.tm_min } + seconds{ t.tm_sec };
@@ -30,50 +30,51 @@ Date stringToTimePoint(const std::string& strDate) {
 class TaskJsonConverter {
 
 public:
-	static std::string to(const Task& task) {
-		std::ostringstream stream;
-		stream << "{\n" <<
-			"\t\"id\" : " << std::to_string(task.getID()) << ",\n" <<
-			"\t\"description\" : \"" << task.getDescription() << "\",\n" <<
-			"\t\"status\" : \"" << nameStatusTask[task.getStatus()] << "\",\n" <<
-			"\t\"createdAt\" : \"" << task.getCreatedAt() << "\",\n" <<
-			"\t\"updateAt\" : \"" << task.getUpdatedAt() << "\"" << "\n" <<
-			"}";
+	static std::wstring to(const Task& task) {
+		std::wostringstream stream;
+		stream << L"{\n" <<
+			L"\t\"id\": " << std::to_wstring(task.getID()) << L",\n" <<
+			L"\t\"description\": \"" << task.getDescription() << L"\",\n" <<
+			L"\t\"status\": \"" << nameStatusTask[task.getStatus()] << L"\",\n" <<
+			L"\t\"createdAt\": \"" << task.getCreatedAt() << L"\",\n" <<
+			L"\t\"updateAt\": \"" << task.getUpdatedAt() << L"\"" << "\n" <<
+			L"}";
 
 		return stream.str();
 	}
 
-	static Task parse(const std::string& json) {
+	static Task parse(const std::wstring& json) {
 		ID id{};
-		std::string description{};
+		std::wstring description{};
 		Task::Status status{};
 		Date createdAt{};
 		Date updateAt{};
 
-		char ch;
-		std::istringstream stream(json);
+		wchar_t ch;
+		std::wistringstream stream(json);
 		while (stream >> ch) {
-			if (ch == '\"') {
-				std::string key;
-				std::getline(stream, key, '\"');
-				stream.seekg(3, std::ios::cur);
+			if (ch == L'\"') {
+				std::wstring key;
+				std::getline(stream, key, L'\"');
+				stream >> ch;
+				stream >> ch;
 
-				std::string value;
-				if (stream.get() == '\"') {
-					std::getline(stream, value, '\"');
+				std::wstring value;
+				if (ch == L'\"') {
+					std::getline(stream, value, L'\"');
 				}
 				else {
-					stream.seekg(-1, std::ios::cur);
+					stream.putback(ch);
 					stream >> value;
 				}
 
-				if (key == "id") {
+				if (key == L"id") {
 					id = std::stoi(value);
 				}
-				else if (key == "description") {
+				else if (key == L"description") {
 					description = value;
 				}
-				else if (key == "status") {
+				else if (key == L"status") {
 					for (std::size_t i{ 0 }; i < nameStatusTask.size(); ++i) {
 						if (value == nameStatusTask[i]) {
 							status = static_cast<Task::Status>(i);
@@ -81,10 +82,10 @@ public:
 						}
 					}
 				}
-				else if (key == "createdAt") {
+				else if (key == L"createdAt") {
 					createdAt = stringToTimePoint(value);
 				}
-				else if (key == "updateAt") {
+				else if (key == L"updateAt") {
 					updateAt = stringToTimePoint(value);
 				}
 			}
@@ -94,7 +95,7 @@ public:
 	}
 
 private:
-	static constexpr std::array nameStatusTask{ "ToDo", "InProgress", "Done" };
+	static constexpr std::array nameStatusTask{ L"ToDo", L"InProgress", L"Done" };
 
 };
 
