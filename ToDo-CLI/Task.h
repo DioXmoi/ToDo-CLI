@@ -3,7 +3,10 @@
 #ifndef _19_46_06_10_2024_TASK_H_
 #define _19_46_06_10_2024_TASK_H_
 
+#include <algorithm>
+#include <array>
 #include <chrono>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -17,9 +20,10 @@ public:
 		ToDo,
 		InProgress,
 		Done,
+		Error,
 	};
 
-	Task(ID id, std::wstring_view description)
+	Task(ID id, std::string_view description)
 		: m_id{ id }
 		, m_description{ description }
 		, m_status{ ToDo }
@@ -29,7 +33,7 @@ public:
 		
 	}
 
-	Task(ID id, std::wstring_view description, Status status, Date createdAt, Date updateAt)
+	Task(ID id, std::string_view description, Status status, Date createdAt, Date updateAt)
 		: m_id{ id }
 		, m_description{ description }
 		, m_status{ status }
@@ -73,9 +77,9 @@ public:
 
 	Date getUpdatedAt() const { return m_updateAt; }
 
-	const std::wstring& getDescription() const { return m_description; }
+	const std::string& getDescription() const { return m_description; }
 
-	void setDescription(std::wstring_view description) {
+	void setDescription(std::string_view description) {
 		m_updateAt = std::chrono::system_clock::now();
 		m_description = description;
 	}
@@ -86,10 +90,30 @@ public:
 		m_status = status;
 	}
 
+	static Status parseStatus(const std::string& status) {
+		auto found{ std::find(s_statusNames.begin(), s_statusNames.end(), status) };
+		if (found != s_statusNames.end()) {
+			return static_cast<Status>(std::distance(s_statusNames.begin(), found));
+		}
+
+		return Status::Error;
+	}
+
+	static std::string statusName(Status status) {
+		if (Status::ToDo > status || status > Status::Error) {
+			throw std::out_of_range("Invalid status value");
+		}
+
+		return s_statusNames[status];
+	}
+
+
 private:
 
+	static constexpr std::array s_statusNames{ "ToDo", "InProgress", "Done", "Error" };
+
 	ID m_id;
-	std::wstring m_description;
+	std::string m_description;
 	Status m_status;
 	Date m_createdAt;
 	Date m_updateAt;
