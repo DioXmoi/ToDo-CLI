@@ -1,4 +1,5 @@
 #include "TaskJsonConverter.h"
+#include "Time.h"
 
 
 #include <iomanip>
@@ -21,10 +22,16 @@ std::string TaskJsonConverter::serialize(const Task& task) {
 
 std::string TaskJsonConverter::serialize(const std::vector<Task>& tasks) {
 	std::ostringstream stream{ };
-	for (const auto& task : tasks) {
-		stream << TaskJsonConverter::serialize(task) << '\n';
+
+	stream << "[\n";
+	for (std::size_t i{ 0 }; i < tasks.size(); ++i) {
+		stream << TaskJsonConverter::serialize(tasks[i]);
+		if (i != tasks.size() - 1) {
+			stream << ",\n";
+		}
 	}
 
+	stream << "\n]";
 	return stream.str();
 }
 
@@ -60,7 +67,7 @@ Task TaskJsonConverter::parse(const std::string& json) {
 				description = value;
 			}
 			else if (key == "status") {
-				status = Task::parseStatus(key);
+				status = Task::parseStatus(value);
 			}
 			else if (key == "createdAt") {
 				createdAt = Time::parseDate(value);

@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <iostream>
+
 
 using ID = int;
 using Date = std::chrono::system_clock::time_point;
@@ -57,7 +59,7 @@ public:
 	Task& operator=(const Task& other) = delete;
 
 	Task& operator=(Task&& other) noexcept {
-		if (this == &other) {
+		if (this != &other) {
 			m_id = other.m_id;
 			m_description = std::move(other.m_description);
 			m_status = other.m_status;

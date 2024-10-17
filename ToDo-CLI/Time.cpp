@@ -14,4 +14,11 @@ namespace Time {
 		return sys_days{ year{ t.tm_year + 1900 } / (t.tm_mon + 1) / t.tm_mday } +
 			hours{ t.tm_hour } + minutes{ t.tm_min } + seconds{ t.tm_sec };
 	}
+
+	LocalDate toLocal(Date utc) {
+		auto const time = std::chrono::current_zone()->to_local(utc);
+
+		return time;
+	}
+
 }
