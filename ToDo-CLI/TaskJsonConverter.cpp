@@ -21,6 +21,10 @@ std::string TaskJsonConverter::serialize(const Task& task) {
 }
 
 std::string TaskJsonConverter::serialize(const std::vector<Task>& tasks) {
+	if (tasks.empty()) {
+		return "[]"; // Return empty JSON array
+	}
+
 	std::ostringstream stream{ };
 
 	stream << "[\n";

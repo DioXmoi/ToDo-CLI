@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <sstream>
+
+
 
 
 enum CommandTypes {
@@ -100,17 +103,30 @@ static std::ostream& operator<<(std::ostream& out, const Task& task) {
 }
 
 static void printAllTasks(const std::vector<Task>& tasks) {
+    if (tasks.empty()) {
+        std::cout << "The task list is empty.\n";
+    }
+
     for (const auto& task : tasks) {
         std::cout << task << "\n";
     }
 }
 
 static void printTasksOnStatus(const std::vector<Task>& tasks, Task::Status status) {
+    std::ostringstream out{ };
     for (const auto& task : tasks) {
         if (task.getStatus() == status) {
-            std::cout << task << "\n";
+            out << task << "\n";
         }
     }
+
+    std::string text{ out.str() };
+    if (text.empty()) {
+        std::cout << "The task list is empty.\n";
+        return;
+    }
+
+    std::cout << text;
 }
 
 static void handleList(const std::vector<std::string>& arguments, const std::vector<Task>& tasks) {
@@ -119,10 +135,11 @@ static void handleList(const std::vector<std::string>& arguments, const std::vec
         return;
     }
 
+
     static constexpr std::size_t indexStatus{ 1 };
     Task::Status status{ Task::parseStatus(arguments[indexStatus]) };
     if (status == Task::Status::Error) {
-        std::cerr << "Error: invalid second argument.\n";
+        std::cout << "Error: invalid second argument.\n";
         return;
     }
 
@@ -130,13 +147,13 @@ static void handleList(const std::vector<std::string>& arguments, const std::vec
 }
 
 static bool isDescriptionOfTask(const std::vector<std::string>& arguments, std::size_t indexDescription) {
-    return arguments.size() >= indexDescription;
+    return arguments.size() - 1 >= indexDescription;
 }
 
 static void handleAdd(const std::vector<std::string>& arguments, std::vector<Task>& tasks) {
     static constexpr std::size_t indexDescription{ 1 };
     if (!isDescriptionOfTask(arguments, indexDescription)) {
-        std::cerr << "Error: the task description is missing.\n";
+        std::cout << "Error: the task description is missing.\n";
         return;
     }
 
@@ -146,12 +163,13 @@ static void handleAdd(const std::vector<std::string>& arguments, std::vector<Tas
     }
 
     tasks.emplace_back(Task{ id, arguments[indexDescription]});
+    std::cout << "Added a task with an ID - " << id << ".\n";
 }
 
 static int isValideID(const std::vector<std::string>& arguments, std::size_t indexID) {
     static constexpr int error{ -1 };//Error code if there is no argument or it is impossible to parse a string into a number
-    if (arguments.size() < indexID) {
-        std::cerr << "Error: The task ID is missing.\n";
+    if (arguments.size() <= indexID) {
+        std::cout << "Error: The task ID is missing.\n";
         return error;
     }
 
@@ -160,7 +178,7 @@ static int isValideID(const std::vector<std::string>& arguments, std::size_t ind
         id = std::stoi(arguments[indexID]);
     }
     catch (std::exception&) {
-        std::cerr << "Error: cannot be converted - " << arguments[indexID] << "to a number.\n";
+        std::cout << "Error: cannot be converted - " << arguments[indexID] << " to a number.\n";
         return error;
     }
 
@@ -181,16 +199,17 @@ static void handleUpdate(const std::vector<std::string>& arguments, std::vector<
 
     if (id != error) {
         if (!isDescriptionOfTask(arguments, indexDescription)) {
-            std::cerr << "Error: the task description is missing.\n";
+            std::cout << "Error: the task description is missing.\n";
             return;
         }
 
         auto found{ findTaskById(tasks, id) };
         if (found != tasks.end()) {
             found -> setDescription(arguments[indexDescription]);
+            std::cout << "The task with the ID - " << id << " has been updated.\n";
         }
         else {
-            std::cerr << "The task was not found with the ID - " << id << '\n';
+            std::cout << "The task was not found with the ID - " << id << ".\n";
         }
     }
 }
@@ -205,9 +224,10 @@ static void handleDelete(const std::vector<std::string>& arguments, std::vector<
         auto found{ findTaskById(tasks, id) };
         if (found != tasks.end()) {
             tasks.erase(found);
+            std::cout << "The task with the ID - " << id << " has been deleted.\n";
         }
         else {
-            std::cerr << "The task was not found with the ID - " << id << '\n';
+            std::cout << "The task was not found with the ID - " << id << ".\n";
         }
     }
 }
@@ -221,9 +241,10 @@ static void handleMarkInProgress(const std::vector<std::string>& arguments, std:
         auto found{ findTaskById(tasks, id) };
         if (found != tasks.end()) {
             found -> setStatus(Task::Status::InProgress);
+            std::cout << "The status of the task with the ID - " << id << " has been updated.";
         }
         else {
-            std::cerr << "The task was not found with the ID - " << id << '\n';
+            std::cout << "The task was not found with the ID - " << id << ".\n";
         }
     }
 }
@@ -237,9 +258,10 @@ static void handleMarkDone(const std::vector<std::string>& arguments, std::vecto
         auto found{ findTaskById(tasks, id) };
         if (found != tasks.end()) {
             found -> setStatus(Task::Status::Done);
+            std::cout << "The status of the task with the ID - " << id  << " has been updated.";
         }
         else {
-            std::cerr << "The task was not found with the ID - " << id << '\n';
+            std::cout << "The task was not found with the ID - " << id << ".\n";
         }
     }
 }
